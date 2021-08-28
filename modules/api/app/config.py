@@ -6,7 +6,10 @@ DB_PASSWORD = os.environ["DB_PASSWORD"]
 DB_HOST = os.environ["DB_HOST"]
 DB_PORT = os.environ["DB_PORT"]
 DB_NAME = os.environ["DB_NAME"]
-
+PERSON_HOST = os.environ["PERSON_HOST"]
+PERSON_PORT = os.environ["PERSON_PORT"]
+LOCATION_HOST = os.environ["LOCATION_HOST"]
+LOCATION_PORT = os.environ["LOCATION_PORT"]
 
 class BaseConfig:
     CONFIG_NAME = "base"

@@ -5,7 +5,7 @@ message LocationMessage {
     int32 person_id = 2;
     string creation_time = 3;
     string latitude = 4;
-    string longitude = 4;
+    string longitude = 5;
 }
 
 message Empty {
@@ -20,8 +20,15 @@ message LocationMessageList {
     repeated LocationMessage locations = 1;
 }
 
+message LocationSearchParams {
+    int32 person_id = 1;
+    int32 meters = 2;
+    string start_date = 3;
+    string end_date = 4;
+}
+
 service LocationService {
     rpc Create(LocationMessage) returns (LocationMessage);
     rpc Get(LocationIdMessage) returns (LocationMessage);
-    rpc List(Empty) returns (LocationMessageList);
+    rpc Search(LocationSearchParams) returns (LocationMessageList);
 }

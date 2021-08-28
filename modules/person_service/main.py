@@ -5,6 +5,7 @@ import grpc
 import person_pb2
 import person_pb2_grpc
 from models import session, Person
+import config
 
 class PersonServicer(person_pb2_grpc.PersonServiceServicer):
     def Create(self, request, context):
@@ -62,9 +63,8 @@ class PersonServicer(person_pb2_grpc.PersonServiceServicer):
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 person_pb2_grpc.add_PersonServiceServicer_to_server(PersonServicer(), server)
 
-
-print("Server starting on port 5000...")
-server.add_insecure_port("[::]:5000")
+print("Server starting on port" + config.SERVICE_PORT)
+server.add_insecure_port("[::]:" + config.SERVICE_PORT)
 server.start()
 # Keep thread alive
 try:

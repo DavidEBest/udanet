@@ -15,6 +15,9 @@ from typing import Optional, List
 import grpc
 import app.udaconnect.grpc_defs.person_pb2 as person_pb2
 import app.udaconnect.grpc_defs.person_pb2_grpc as person_pb2_grpc
+import app.udaconnect.grpc_defs.location_pb2 as location_pb2
+import app.udaconnect.grpc_defs.location_pb2_grpc as location_pb2_grpc
+import config
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -25,42 +28,67 @@ api = Namespace("UdaConnect", description="Connections via geolocation.")  # noq
 
 
 @api.route("/locations")
+class LocationsResource(Resource):
+    @accepts(
+        dict(name="person_id", type=int),
+        dict(name="creation_time", type=str),
+        dict(name="latitude", type=str),
+        dict(name="longitude", type=str),
+        api=api)
+    @responds(schema=LocationSchema)
+    def post(self) -> Location:
+        payload = request.parsed_args
+
+        channel = grpc.insecure_channel(config.LOCATION_HOST + ":" + config.LOCATION_PORT)
+        stub = location_pb2_grpc.LocationServiceStub(channel)
+        location = location_pb2.LocationMessage(
+            id=payload['id'],
+            person_id=payload['person_id'],
+            creation_time=payload['creation_time'],
+            latitude=payload['latitude'],
+            longitude=payload['longitude']
+        )
+        response = stub.Create(location)
+        return response
+
+
 @api.route("/locations/<location_id>")
 @api.param("location_id", "Unique ID for a given Location", _in="query")
 class LocationResource(Resource):
-    @accepts(schema=LocationSchema)
-    @responds(schema=LocationSchema)
-    def post(self) -> Location:
-        request.get_json()
-        location: Location = LocationService.create(request.get_json())
-        return location
-
     @responds(schema=LocationSchema)
     def get(self, location_id) -> Location:
-        location: Location = LocationService.retrieve(location_id)
-        return location
+        channel = grpc.insecure_channel(config.LOCATION_HOST + ":" + config.LOCATION_PORT)
+        stub = location_pb2_grpc.LocationServiceStub(channel)
+        location_id_msg = location_pb2.LocationIdMessage(id=int(location_id))
+        response = stub.Get(location_id_msg)
+        return response
+
 
 
 @api.route("/persons")
 class PersonsResource(Resource):
-    @accepts(schema=PersonSchema)
+    @accepts(
+        dict(name="first_name", type=str),
+        dict(name="last_name", type=str),
+        dict(name="company_name", type=str),
+        api=api)
     @responds(schema=PersonSchema)
     def post(self) -> Person:
-        payload = request.get_json()
+        payload = request.parsed_args
 
-        channel = grpc.insecure_channel("person_service:5000")
+        channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
         stub = person_pb2_grpc.PersonServiceStub(channel)
         person = person_pb2.PersonMessage(
-            first_name=payload.first_name,
-            last_name=payload.last_name,
-            company_name=payload.company_name
+            first_name=payload['first_name'],
+            last_name=payload['last_name'],
+            company_name=payload['company_name']
         )
         response = stub.Create(person)
         return response
 
     @responds(schema=PersonSchema, many=True)
     def get(self) -> List[Person]:
-        channel = grpc.insecure_channel("person_service:5000")
+        channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
         stub = person_pb2_grpc.PersonServiceStub(channel)
         response = stub.List(person_pb2.Empty())
         people = []
@@ -79,9 +107,9 @@ class PersonsResource(Resource):
 class PersonResource(Resource):
     @responds(schema=PersonSchema)
     def get(self, person_id) -> Person:
-        channel = grpc.insecure_channel("person_service:5000")
+        channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
         stub = person_pb2_grpc.PersonServiceStub(channel)
-        person_id_msg = person_pb2.PersonIdMessage(id=str(person_id))
+        person_id_msg = person_pb2.PersonIdMessage(id=int(person_id))
         response = stub.Get(person_id_msg)
         return response
 

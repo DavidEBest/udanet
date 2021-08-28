@@ -1,6 +1,6 @@
 from datetime import datetime
-
-from app.udaconnect.models import Connection, Location, Person
+import json
+from app.udaconnect.models import Location, Person
 from app.udaconnect.schemas import (
     ConnectionSchema,
     LocationSchema,
@@ -19,7 +19,12 @@ import app.udaconnect.grpc_defs.location_pb2 as location_pb2
 import app.udaconnect.grpc_defs.location_pb2_grpc as location_pb2_grpc
 import app.config
 
+from kafka import KafkaProducer
+
 DATE_FORMAT = "%Y-%m-%d"
+
+TOPIC_NAME = 'location'
+KAFKA_SERVER = app.config.KAFKA_HOST + ":" + app.config.KAFKA_PORT
 
 api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
 
@@ -38,24 +43,21 @@ class LocationsResource(Resource):
     @responds(schema=LocationSchema)
     def post(self) -> Location:
         payload = request.parsed_args
-
-        channel = grpc.insecure_channel(app.config.LOCATION_HOST + ":" + app.config.LOCATION_PORT)
-        stub = location_pb2_grpc.LocationServiceStub(channel)
-        location = location_pb2.LocationMessage(
-            person_id=payload['person_id'],
-            creation_time=payload['creation_time'],
-            latitude=payload['latitude'],
-            longitude=payload['longitude']
-        )
-        response = stub.Create(location)
-        loc = {
-            "id": response.id,
-            "person_id": response.person_id,
-            "creation_time": datetime.strptime(response.creation_time, '%Y-%m-%d %H:%M:%S.%f'),
-            "latitude":response.latitude,
-            "longitude":response.longitude
-        }
-        return loc
+        print("KAFKA SERVIER", KAFKA_SERVER)
+        producer = KafkaProducer(
+            bootstrap_servers=KAFKA_SERVER, 
+            api_version=(2,8,0), 
+            value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+        producer.send(
+            TOPIC_NAME,
+            {
+                "person_id": payload["person_id"],
+                "creation_time": payload["creation_time"],
+                "latitude": payload["latitude"],
+                "longitude": payload["longitude"]
+            })
+        producer.flush()
+        return payload
 
 
 @api.route("/locations/<location_id>")

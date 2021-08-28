@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "05966d93-c6c0-4ac1-b0ec-c85f96fc9baa",
+		"name": "UdaConnect",
+		"description": "This is the set of queries for the UdaConnect project.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List People",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30001/api/persons",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"persons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Person",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:30001/api/persons?first_name=David&last_name=Best&company_name=Test Co.",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"persons"
+					],
+					"query": [
+						{
+							"key": "first_name",
+							"value": "David"
+						},
+						{
+							"key": "last_name",
+							"value": "Best"
+						},
+						{
+							"key": "company_name",
+							"value": "Test Co."
+						},
+						{
+							"key": "id",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Person",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30001/api/persons/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"persons",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30001/api/locations/39",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"locations",
+						"39"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Location",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30001/api/locations?person_id=10&latitude=-122.2908829999999938&longitude=37.5536299999999983\n",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"locations"
+					],
+					"query": [
+						{
+							"key": "person_id",
+							"value": "10"
+						},
+						{
+							"key": "latitude",
+							"value": "-122.2908829999999938"
+						},
+						{
+							"key": "longitude",
+							"value": "37.5536299999999983\n"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Connection Search",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30001/api/persons/5/connection?start_date=2020-01-01&end_date=2020-12-30&distance=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30001",
+					"path": [
+						"api",
+						"persons",
+						"5",
+						"connection"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2020-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2020-12-30"
+						},
+						{
+							"key": "distance",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

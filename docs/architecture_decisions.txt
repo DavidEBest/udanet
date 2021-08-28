@@ -1,0 +1,9 @@
+API Gateway:
+I chose to keep the single restful api for the application. This endpoint went from being the bulk of the application to being a relatively thin API gateway that converts parameters and passes them to the Location and Person services via gRPC and Kafka. The API gateway allows the application to present a unified and user-friendly API for the web client.
+
+gRPC:
+The Location and Person services are exposed via a gRPC interface that is connected to the API gateway. This allowed most of the logic to be moved out of the monolithic application and into the two microservices. These microservices are relatively isolated, the API gateway combines the data between the two. A further enhancement would be to have the Person service contain the search logic, which would allow the gateway to be thinner.
+
+Kafka:
+Looking at the application, I believe a place that could require significant throughput would be the location tracking endpoint. This would be used by the UdaConnect mobile app; it could potentially be pushing a large amount of data into the system, without requiring immediate feedback. This is a perfect use case for a message queue like Kafka.
+

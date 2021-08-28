@@ -10,6 +10,8 @@ PERSON_HOST = os.environ["PERSON_HOST"]
 PERSON_PORT = os.environ["PERSON_PORT"]
 LOCATION_HOST = os.environ["LOCATION_HOST"]
 LOCATION_PORT = os.environ["LOCATION_PORT"]
+KAFKA_HOST = os.environ["KAFKA_HOST"]
+KAFKA_PORT = os.environ["KAFKA_PORT"]
 
 class BaseConfig:
     CONFIG_NAME = "base"

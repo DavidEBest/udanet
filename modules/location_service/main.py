@@ -15,7 +15,10 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
     def Create(self, request, context):
         new_location = Location()
         new_location.person_id = request.person_id
-        new_location.creation_time = request.creation_time
+        if request.creation_time == '':
+            new_location.creation_time = datetime.now()
+        else:
+            new_location.creation_time = request.creation_time
         new_location.coordinate = ST_Point(request.latitude, request.longitude)
 
         session.add(new_location)
@@ -49,8 +52,8 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
 
     def Search(self, request, context):
         person_id = request.person_id
-        start_date = datetime.strptime(request.start_date, '%Y-%m-%d %H:%M:%S.%f')
-        end_date = datetime.strptime(request.end_date, '%Y-%m-%d %H:%M:%S.%f')
+        start_date = datetime.strptime(request.start_date, '%Y-%m-%d %H:%M:%S')
+        end_date = datetime.strptime(request.end_date, '%Y-%m-%d %H:%M:%S')
         meters = request.meters
 
         locations: List = session.query(Location).filter(

@@ -6,7 +6,7 @@ from app.udaconnect.schemas import (
     LocationSchema,
     PersonSchema,
 )
-from app.udaconnect.services import ConnectionService, LocationService
+from app.udaconnect.services import ConnectionService
 from flask import request
 from flask_accepts import accepts, responds
 from flask_restx import Namespace, Resource
@@ -17,7 +17,7 @@ import app.udaconnect.grpc_defs.person_pb2 as person_pb2
 import app.udaconnect.grpc_defs.person_pb2_grpc as person_pb2_grpc
 import app.udaconnect.grpc_defs.location_pb2 as location_pb2
 import app.udaconnect.grpc_defs.location_pb2_grpc as location_pb2_grpc
-import config
+import app.config
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -39,17 +39,23 @@ class LocationsResource(Resource):
     def post(self) -> Location:
         payload = request.parsed_args
 
-        channel = grpc.insecure_channel(config.LOCATION_HOST + ":" + config.LOCATION_PORT)
+        channel = grpc.insecure_channel(app.config.LOCATION_HOST + ":" + app.config.LOCATION_PORT)
         stub = location_pb2_grpc.LocationServiceStub(channel)
         location = location_pb2.LocationMessage(
-            id=payload['id'],
             person_id=payload['person_id'],
             creation_time=payload['creation_time'],
             latitude=payload['latitude'],
             longitude=payload['longitude']
         )
         response = stub.Create(location)
-        return response
+        loc = {
+            "id": response.id,
+            "person_id": response.person_id,
+            "creation_time": datetime.strptime(response.creation_time, '%Y-%m-%d %H:%M:%S.%f'),
+            "latitude":response.latitude,
+            "longitude":response.longitude
+        }
+        return loc
 
 
 @api.route("/locations/<location_id>")
@@ -57,11 +63,18 @@ class LocationsResource(Resource):
 class LocationResource(Resource):
     @responds(schema=LocationSchema)
     def get(self, location_id) -> Location:
-        channel = grpc.insecure_channel(config.LOCATION_HOST + ":" + config.LOCATION_PORT)
+        channel = grpc.insecure_channel(app.config.LOCATION_HOST + ":" + app.config.LOCATION_PORT)
         stub = location_pb2_grpc.LocationServiceStub(channel)
         location_id_msg = location_pb2.LocationIdMessage(id=int(location_id))
         response = stub.Get(location_id_msg)
-        return response
+        loc = {
+            "id": response.id,
+            "person_id": response.person_id,
+            "creation_time": datetime.strptime(response.creation_time, '%Y-%m-%d %H:%M:%S'),
+            "latitude":response.latitude,
+            "longitude":response.longitude
+        }
+        return loc
 
 
 
@@ -76,7 +89,7 @@ class PersonsResource(Resource):
     def post(self) -> Person:
         payload = request.parsed_args
 
-        channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
+        channel = grpc.insecure_channel(app.config.PERSON_HOST + ":" + app.config.PERSON_PORT)
         stub = person_pb2_grpc.PersonServiceStub(channel)
         person = person_pb2.PersonMessage(
             first_name=payload['first_name'],
@@ -88,7 +101,7 @@ class PersonsResource(Resource):
 
     @responds(schema=PersonSchema, many=True)
     def get(self) -> List[Person]:
-        channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
+        channel = grpc.insecure_channel(app.config.PERSON_HOST + ":" + app.config.PERSON_PORT)
         stub = person_pb2_grpc.PersonServiceStub(channel)
         response = stub.List(person_pb2.Empty())
         people = []
@@ -107,7 +120,7 @@ class PersonsResource(Resource):
 class PersonResource(Resource):
     @responds(schema=PersonSchema)
     def get(self, person_id) -> Person:
-        channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
+        channel = grpc.insecure_channel(app.config.PERSON_HOST + ":" + app.config.PERSON_PORT)
         stub = person_pb2_grpc.PersonServiceStub(channel)
         person_id_msg = person_pb2.PersonIdMessage(id=int(person_id))
         response = stub.Get(person_id_msg)

@@ -8,10 +8,6 @@ message LocationMessage {
     string longitude = 5;
 }
 
-message Empty {
-
-}
-
 message LocationIdMessage {
     int32 id = 1;
 }

@@ -13,7 +13,7 @@ import app.udaconnect.grpc_defs.person_pb2_grpc as person_pb2_grpc
 import app.udaconnect.grpc_defs.person_pb2 as person_pb2
 import app.udaconnect.grpc_defs.location_pb2 as location_pb2
 import app.udaconnect.grpc_defs.location_pb2_grpc as location_pb2_grpc
-import config
+import app.config
 
 
 logging.basicConfig(level=logging.WARNING)
@@ -32,18 +32,18 @@ class ConnectionService:
         smoothly for a better user experience for API consumers?
         """
         # Cache all users in memory for quick lookup
-        person_channel = grpc.insecure_channel(config.PERSON_HOST + ":" + config.PERSON_PORT)
+        person_channel = grpc.insecure_channel(app.config.PERSON_HOST + ":" + app.config.PERSON_PORT)
         person_stub = person_pb2_grpc.PersonServiceStub(person_channel)
         response = person_stub.List(person_pb2.Empty())
         person_map: Dict[str, person_pb2.PersonMessage] = {person.id: person for person in response.people}
 
-        location_channel = grpc.insecure_channel(config.LOCATION_HOST + ":" + config.LOCATION_PORT)
+        location_channel = grpc.insecure_channel(app.config.LOCATION_HOST + ":" + app.config.LOCATION_PORT)
         location_stub = location_pb2_grpc.LocationServiceStub(location_channel)
         location_params = location_pb2.LocationSearchParams(
-            person_id=person_id,
+            person_id=int(person_id),
             start_date=str(start_date),
             end_date=str(end_date),
-            meters=meters
+            meters=int(meters)
         )
         locations = location_stub.Search(location_params)
         print(locations)
@@ -51,6 +51,15 @@ class ConnectionService:
         result: List[Connection] = []
         for location in locations.locations:
             temp_person = person_map[location.person_id]
+            print("LOC", location)
+            print("LOC2", ST_Point(location.latitude, location.longitude))
+            loc= Location(
+                id=location.id,
+                person_id=location.person_id,
+                # coordinate = ST_Point(location.latitude, location.longitude),
+                creation_time=datetime.strptime(location.creation_time, '%Y-%m-%d %H:%M:%S')
+            )
+            loc.set_wkt_with_coords(location.latitude, location.longitude)
             result.append(
                 Connection(
                     person=Person(
@@ -58,13 +67,7 @@ class ConnectionService:
                         first_name=temp_person.first_name,
                         last_name=temp_person.last_name,
                         company_name=temp_person.company_name
-                    ), location=Location(
-                        id=location.id,
-                        person_id=location.person_id,
-                        latitude=location.latitude,
-                        longitude=location.longitude,
-                        creation_time=str(location.creation_time)
-                    )
+                    ), location=loc
                 )
             )
 

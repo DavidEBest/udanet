@@ -2,37 +2,36 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    service: udaconnect-api
-  name: udaconnect-api
+    service: udaconnect-api-person
+  name: udaconnect-api-person
 spec:
   ports:
   - name: "5000"
     port: 5000
     targetPort: 5000
-    nodePort: 30001
   selector:
-    service: udaconnect-api
+    service: udaconnect-api-person
   type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: udaconnect-api
-  name: udaconnect-api
+    service: udaconnect-api-person
+  name: udaconnect-api-person
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: udaconnect-api
+      service: udaconnect-api-person
   template:
     metadata:
       labels:
-        service: udaconnect-api
+        service: udaconnect-api-person
     spec:
       containers:
-      - image: davidebest/api_server:latest
-        name: udaconnect-api
+      - image: davidebest/person_service:latest
+        name: udaconnect-api-person
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
@@ -60,16 +59,6 @@ spec:
             configMapKeyRef:
               name: db-env
               key: DB_PORT
-        - name: LOCATION_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: service-env
-              key: LOCATION_HOST
-        - name: LOCATION_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: service-env
-              key: LOCATION_PORT
         - name: PERSON_HOST
           valueFrom:
             configMapKeyRef:
@@ -80,14 +69,4 @@ spec:
             configMapKeyRef:
               name: service-env
               key: PERSON_PORT
-        - name: KAFKA_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: service-env
-              key: KAFKA_HOST
-        - name: KAFKA_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: service-env
-              key: KAFKA_PORT
       restartPolicy: Always

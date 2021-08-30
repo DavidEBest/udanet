@@ -16,13 +16,13 @@ Sample implementation of a writer that can be used to write messages to gRPC.
 
 print("Sending sample payload...")
 
-channel = grpc.insecure_channel("localhost:30006")
+channel = grpc.insecure_channel("localhost:30005")
 stub = location_pb2_grpc.LocationServiceStub(channel)
 
 # Update this with desired payload
 loc = location_pb2.LocationMessage(
     person_id=1,
-    creation_time='2021-08-18 10:37:06.000000',
+    creation_time='2021-08-18 10:37:06',
     latitude='39.758949',
     longitude='-84.191605'
 )
@@ -36,8 +36,8 @@ print("2", response_2)
 
 search = location_pb2.LocationSearchParams(
     person_id=5,
-    start_date='2020-01-01 10:37:06.000000',
-    end_date='2021-09-18 10:37:06.000000',
+    start_date='2020-01-01 10:37:06',
+    end_date='2021-09-18 10:37:06',
     meters=10
 )
 response_3 = stub.Search(search)

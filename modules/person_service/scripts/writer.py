@@ -16,7 +16,7 @@ Sample implementation of a writer that can be used to write messages to gRPC.
 
 print("Sending sample payload...")
 
-channel = grpc.insecure_channel("localhost:30005")
+channel = grpc.insecure_channel("localhost:30006")
 stub = person_pb2_grpc.PersonServiceStub(channel)
 
 # Update this with desired payload

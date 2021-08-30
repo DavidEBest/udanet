@@ -1,0 +1,4 @@
+There are two services that communicate via gRPC, location_service and person_service.
+Both services have a directory under `modules`. In those directories is a scripts/writer.py file that will exercise the interfaces. Running the script will make a call to each of the exposed gRPC endpoints.
+
+The location_service is exposed on port 30005. Person_service is exposed on 30006.

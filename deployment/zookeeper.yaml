@@ -17,7 +17,8 @@ spec:
     protocol: TCP
   selector:
     service: zookeeper
-    ---
+  type: NodePort
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,7 +38,6 @@ spec:
       containers:
       - name: zookeeper
         image: bitnami/zookeeper:latest
-        - containerPort: 2181
         env:
         - name: ALLOW_ANONYMOUS_LOGIN
           value: "yes"

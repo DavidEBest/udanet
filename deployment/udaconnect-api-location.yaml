@@ -64,7 +64,7 @@ spec:
             configMapKeyRef:
               name: service-env
               key: LOCATION_HOST
-        - name: LOCATION_PORT
+        - name: SERVICE_PORT
           valueFrom:
             configMapKeyRef:
               name: service-env
